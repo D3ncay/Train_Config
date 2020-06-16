@@ -6,13 +6,18 @@ public class Program
 {
     public static void Main()
     {
-        Direction direction = new Direction();
-        Train train = new Train();
+        List<Direction> allDirection = new List<Direction>();
         while (true)
         {
             Console.WriteLine("______________Информация о существующих поездах______________");
-            direction.ShowAllDirections();
-            direction.ShowAllTrains();
+            if (allDirection.Count == 0)
+            {
+                Console.WriteLine();
+            }
+            foreach (Direction d in allDirection)
+            {
+                d.ShowInfo();
+            }
             Console.WriteLine();
             Console.SetCursorPosition(0, 10);
             Console.WriteLine("___________________Конфигуратор пассажирских поездов___________________");
@@ -20,10 +25,9 @@ public class Program
             string userInputDeparture = Console.ReadLine();
             Console.Write("Прибытие (название города) :");
             string userInputArrive = Console.ReadLine();
-            direction.AddNewDirection(userInputDeparture, userInputArrive);
-
-
+            Direction direction = new Direction(userInputDeparture, userInputArrive, null);
             direction.AddNewTrain();
+            allDirection.Add(direction);
             Console.ReadKey();
             Console.Clear();
         }
@@ -31,35 +35,25 @@ public class Program
 
     public class Direction
     {
-
         public string PointOfDeparturing { get; private set; }
         public string PointOfArriving { get; private set; }
-
-
-        private List<Direction> _allDirections = new List<Direction>();
-
-        private List<Train> _allTrains = new List<Train>();
+        public Train Train { get; private set; }
 
         public Direction() { }
-        public Direction(string poingOfDeparturing, string pointOfArriving)
+
+        public Direction(string poingOfDeparturing, string pointOfArriving, Train train)
         {
             PointOfArriving = pointOfArriving;
             PointOfDeparturing = poingOfDeparturing;
-        }
-
-        public void AddNewDirection(string userInputDeparture, string userInputArrive)
-        {
-            Direction direction = new Direction(userInputDeparture, userInputArrive);
-            _allDirections.Add(direction);
+            Train = train;
         }
 
         public void AddNewTrain()
         {
-
             Random rand = new Random();
             int numberOfPassengers = rand.Next(180, 200);
-            Train train = new Train(numberOfPassengers, null);
-            train.AddCarriages(numberOfPassengers);
+            Train = new Train(numberOfPassengers, null);
+            Train.AddCarriages(numberOfPassengers);
             Console.Write("\nОтправить поезд по заданному направлению? (да/нет)");
             while (true)
             {
@@ -67,12 +61,12 @@ public class Program
                 userDepartureChoise.ToLower();
                 if (userDepartureChoise == "да")
                 {
-                    train.Departure();
+                    Train.Departure();
                     break;
                 }
                 else if (userDepartureChoise == "нет")
                 {
-                    train.Wait();
+                    Train.Wait();
                     break;
                 }
                 else
@@ -80,36 +74,12 @@ public class Program
                     Console.Write("Вы ввели неправильную команду. Повторите ввод: ");
                 }
             }
-            _allTrains.Add(train);
         }
 
-        public void ShowAllTrains()
+        public void ShowInfo()
         {
-            int column = 1;
-            foreach (Train t in _allTrains)
-            {
-                Console.SetCursorPosition(55, column);
-                Console.WriteLine($"Пассажиров : {t.NumberOfPassengers} Статус: {t.DepartureStatus}");
-                Console.SetCursorPosition(40, column);
-                t.ShowNumberOfCarriages();
-                column++;
-            }
-
-        }
-
-        public void ShowAllDirections()
-        {
-            if (_allDirections.Count == 0)
-            {
-                Console.WriteLine("Информация отсутствует!");
-            }
-            else
-            {
-                foreach (Direction d in _allDirections)
-                {
-                    Console.WriteLine($"Направление поезда: {d.PointOfDeparturing + " - " + d.PointOfArriving }");
-                }
-            }
+            Console.Write ($"Маршрут: {PointOfDeparturing} - {PointOfArriving}");
+            Train.ShowTrain();
         }
     }
 
@@ -138,9 +108,9 @@ public class Program
             DepartureStatus = "Ожидает отправления";
         }
 
-        public void ShowNumberOfCarriages()
+        public void ShowTrain()
         {
-            Console.WriteLine($"Вагонов : {_allCarriages.Count}");
+            Console.WriteLine ($" Пассажиров : {NumberOfPassengers} Вагонов: {_allCarriages.Count} Статус отправления: {DepartureStatus}");
         }
 
         public void AddCarriages(int numberOfPassengers)
